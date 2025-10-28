@@ -2,7 +2,7 @@ import { QueryClient } from "@tanstack/react-query";
 import axios from "axios";
 
 export const API = axios.create({
-    baseURL: "https://organize-api-js.onrender.com"
+    baseURL: "https://api.otmzai.com.br"
 })
 
 export const queryClient = new QueryClient();
