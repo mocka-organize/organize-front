@@ -12,6 +12,7 @@ import Login from "../pages/auth/Login";
 import Usuarios from "../pages/admin/Usuarios";
 import Departamentos from "../pages/admin/Departamentos";
 import Balcoes from "../pages/admin/Balcoes";
+import Consumos from "../pages/admin/Consumos";
 
 const Paths = () => {
     return (
@@ -30,6 +31,7 @@ const Paths = () => {
                         <Route path="clientes" element={<Clientes />} />
                         <Route path="departamentos" element={<Departamentos />} />
                         <Route path="balcoes" element={<Balcoes />} />
+                        <Route path="consumos" element={<Consumos />} />
                     </Route>
                 </Routes>
             </BrowserRouter>

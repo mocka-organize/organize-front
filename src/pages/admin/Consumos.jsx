@@ -1,22 +1,22 @@
-import { Button, Drawer, Form, Image, Input, Popconfirm, Table } from "antd";
-import { useCreateClientes, useDeleteClientes, useGetClientes, useUpdateClientes } from "../../hooks/clientesHooks";
+import { Button, Drawer, Form, Input, Popconfirm, Table } from "antd";
+import { useCreateConsumos, useUpdateConsumos, useDeleteConsumos, useGetConsumos } from "../../hooks/consumosHooks";
 import { BiPencil, BiPlus, BiTrash } from "react-icons/bi";
 import { useContext, useState } from "react";
 import { AntContext } from "../../contexts/AntContext";
 
-const Clientes = () => {
+const Consumos = () => {
 
     const [visibleCreate, setVisibleCreate] = useState();
     const [visibleUpdate, setVisibleUpdate] = useState();
     const [formEdit] = Form.useForm();
-    const { data: clientes } = useGetClientes();
-    const { mutateAsync: createCliente } = useCreateClientes();
-    const { mutateAsync: updateCliente } = useUpdateClientes();
-    const { mutateAsync: deleteCliente } = useDeleteClientes();
+    const { data: consumos } = useGetConsumos();
+    const { mutateAsync: createDepartamento } = useCreateConsumos();
+    const { mutateAsync: updateDepartamento } = useUpdateConsumos();
+    const { mutateAsync: deleteDepartamento } = useDeleteConsumos();
     const { api } = useContext(AntContext);
 
     function criar(data) {
-        createCliente(data, {
+        createDepartamento(data, {
             onSuccess: (response) => {
                 api[response.type]({
                     description: response.description
@@ -31,7 +31,7 @@ const Clientes = () => {
     }
 
     function editar(data) {
-        updateCliente(data, {
+        updateDepartamento(data, {
             onSuccess: (response) => {
                 api[response.type]({
                     description: response.description
@@ -46,7 +46,7 @@ const Clientes = () => {
     }
 
     function deletar(id) {
-        deleteCliente(id, {
+        deleteDepartamento(id, {
             onSuccess: (response) => {
                 api[response.type]({
                     description: response.description
@@ -63,41 +63,34 @@ const Clientes = () => {
     return (
         <>
             <div className="flex flex-col lg:flex-row gap-2 justify-between lg:items-center mb-5">
-                <h1 className="text-2xl text-blue-500 font-semibold">Clientes</h1>
-                <Button
+                <h1 className="text-2xl text-blue-500 font-semibold">Consumos</h1>
+                {/* <Button
                     type="primary"
                     icon={<BiPlus />}
                     onClick={() => setVisibleCreate(true)}
                 >
-                    Novo cliente
-                </Button>
+                    Novo Consumo
+                </Button> */}
             </div>
             <div className="lg:hidden">
                 <Table
-                    dataSource={clientes || []}
-                    rowKey={"cliente_id"}
+                    dataSource={consumos || []}
+                    rowKey={"consumo_id"}
                     className="shadow-lg bg-white rounded-2xl"
+
                 >
                     <Table.Column
-                        title={"Cliente"}
-                        className="w-[40px]"
+                        title={"Consumo"}
                         render={(_, row) => (
                             <div>
-                                <div className="flex mb-2">
-                                    <Image
-                                        src={row.foto}
-                                        alt={row.nome}
-                                        width={40}
-                                        height={40}
-                                        className="object-cover rounded"
-                                    />
-                                    <div className="flex-1 ml-2">
-                                        <span className="font-bold block text-slate-500">Nome:</span>
-                                        <span className="line-clamp-1">{row.nome}</span>
+                                <div className="flex *:flex-1">
+                                    <div>
+                                        <span className="font-bold block text-slate-500">Cliente:</span>
+                                        <span className="line-clamp-1">{row.clientes.nome}</span>
                                     </div>
-                                    <div className="flex-1">
-                                        <span className="font-bold block text-slate-500">Email:</span>
-                                        <span className="line-clamp-1">{row.email}</span>
+                                    <div>
+                                        <span className="font-bold block text-slate-500">Balcão:</span>
+                                        <span className="line-clamp-1">{row.balcoes.localizacao}</span>
                                     </div>
                                 </div>
                                 <div className="flex justify-end gap-3">
@@ -105,14 +98,15 @@ const Clientes = () => {
                                         type="primary"
                                         icon={<BiPencil />}
                                         onClick={() => {
+                                            delete row.senha;
                                             formEdit.setFieldsValue({ ...row })
-                                            setVisibleUpdate(true)
+                                            setVisibleUpdate(true);
                                         }}
                                     />
                                     <Popconfirm
                                         title="Alerta"
                                         description="Deseja realmente apagar?"
-                                        onConfirm={() => deletar(row.cliente_id)}
+                                        onConfirm={() => deletar(row.departamento_id)}
                                         okText="Sim"
                                         cancelText="Não"
                                     >
@@ -124,37 +118,35 @@ const Clientes = () => {
                                 </div>
                             </div>
                         )}
+                        dataIndex={"nome"}
+                        key={"nome"}
                     />
                 </Table>
             </div>
             <div className="hidden lg:block">
                 <Table
-                    dataSource={clientes || []}
-                    rowKey={"cliente_id"}
+                    dataSource={consumos || []}
+                    rowKey={"consumo_id"}
                     className="shadow-lg bg-white rounded-2xl"
                 >
                     <Table.Column
-                        title={"Foto"}
-                        className="w-[40px]"
-                        render={(_, row) => (
-                            <div className="flex items-center">
-                                <Image
-                                    src={row.foto}
-                                    alt={row.nome}
-                                    width={40}
-                                    height={40}
-                                    className="object-cover rounded"
-                                />
-                            </div>
-                        )}
+                        title={"ID"}
+                        dataIndex={"consumo_id"}
+                        key={"consumo_id"}
+                        className="w-[50px]"
                     />
                     <Table.Column
-                        title={"Dados"}
+                        title={"Cliente"}
+                        render={(_, row) => row.clientes.nome}
+                    />
+                    <Table.Column
+                        title={"Balcão"}
+                        render={(_, row) => row.balcoes.localizacao}
+                    />
+                    <Table.Column
+                        title={"Balcão"}
                         render={(_, row) => (
-                            <div>
-                                <div className="leading-4"><strong className="text-slate-500">Nome: </strong>{row.nome}</div>
-                                <div className="leading-4"><strong className="text-slate-500">Email: </strong>{row.email}</div>
-                            </div>
+                            <div>{new Date(row.created_at).toLocaleDateString()} {new Date(row.created_at).toLocaleTimeString()}</div>
                         )}
                     />
                     <Table.Column
@@ -167,13 +159,13 @@ const Clientes = () => {
                                     icon={<BiPencil />}
                                     onClick={() => {
                                         formEdit.setFieldsValue({ ...row })
-                                        setVisibleUpdate(true)
+                                        setVisibleUpdate(true);
                                     }}
                                 />
                                 <Popconfirm
                                     title="Alerta"
                                     description="Deseja realmente apagar?"
-                                    onConfirm={() => deletar(row.cliente_id)}
+                                    onConfirm={() => deletar(row.consumo_id)}
                                     okText="Sim"
                                     cancelText="Não"
                                 >
@@ -194,7 +186,6 @@ const Clientes = () => {
             >
                 <Form
                     layout="vertical"
-                    encType="multipart/form-data"
                     onFinish={criar}
                 >
                     <Form.Item
@@ -203,27 +194,6 @@ const Clientes = () => {
                         rules={[{ required: true, message: "Campo obrigatório" }]}
                     >
                         <Input />
-                    </Form.Item>
-                    <Form.Item
-                        label="Email"
-                        name={"email"}
-                        rules={[{ required: true, message: "Campo obrigatório" }]}
-                    >
-                        <Input />
-                    </Form.Item>
-                    <Form.Item
-                        label="Foto"
-                        name={"foto"}
-                        valuePropName="fileList"
-                        getValueFromEvent={(e) => {
-                            if (Array.isArray(e)) {
-                                return e;
-                            }
-                            return e?.target?.files?.[0];
-                        }}
-                        rules={[{ required: true, message: "Campo obrigatório" }]}
-                    >
-                        <Input type="file" />
                     </Form.Item>
                     <div className="flex justify-end">
                         <Button
@@ -242,12 +212,11 @@ const Clientes = () => {
             >
                 <Form
                     layout="vertical"
-                    encType="multipart/form-data"
                     onFinish={editar}
                     form={formEdit}
                 >
                     <Form.Item
-                        name={"cliente_id"}
+                        name={"consumo_id"}
                         hidden
                     >
                         <Input />
@@ -258,26 +227,6 @@ const Clientes = () => {
                         rules={[{ required: true, message: "Campo obrigatório" }]}
                     >
                         <Input />
-                    </Form.Item>
-                    <Form.Item
-                        label="Email"
-                        name={"email"}
-                        rules={[{ required: true, message: "Campo obrigatório" }]}
-                    >
-                        <Input />
-                    </Form.Item>
-                    <Form.Item
-                        label="Foto"
-                        name={"foto"}
-                        valuePropName="fileList"
-                        getValueFromEvent={(e) => {
-                            if (Array.isArray(e)) {
-                                return e;
-                            }
-                            return e?.target?.files?.[0];
-                        }}
-                    >
-                        <Input type="file" />
                     </Form.Item>
                     <div className="flex justify-end">
                         <Button
@@ -293,4 +242,4 @@ const Clientes = () => {
     );
 }
 
-export default Clientes;
+export default Consumos;

@@ -1,4 +1,4 @@
-import { Button, Drawer, Form, Image, Input, Popconfirm, Select, Table } from "antd";
+import { Button, Drawer, Form, Input, Popconfirm, Select, Table } from "antd";
 import { useCreateUsuarios, useDeleteUsuarios, useGetUsuarios } from "../../hooks/usuarioHooks";
 import { BiPencil, BiPlus, BiTrash } from "react-icons/bi";
 import { useContext, useState } from "react";
@@ -65,7 +65,7 @@ const Usuarios = () => {
 
     return (
         <>
-            <div className="flex justify-between items-center mb-5">
+            <div className="flex flex-col lg:flex-row gap-2 justify-between lg:items-center mb-5">
                 <h1 className="text-2xl text-blue-500 font-semibold">Usuarios</h1>
                 <Button
                     type="primary"
@@ -75,61 +75,126 @@ const Usuarios = () => {
                     Novo Usuario
                 </Button>
             </div>
-            <Table
-                dataSource={usuarios || []}
-                rowKey={"usuario_id"}
-            >
-                <Table.Column
-                    title={"ID"}
-                    dataIndex={"usuario_id"}
-                    key={"usuario_id"}
-                    className="w-[50px]"
-                />
-                <Table.Column
-                    title={"Nome"}
-                    dataIndex={"nome"}
-                    key={"nome"}
-                />
-                <Table.Column
-                    title={"Email"}
-                    dataIndex={"email"}
-                    key={"email"}
-                />
-                <Table.Column
-                    title={"Departamento"}
-                    render={(_, row) => row.departamentos.nome}
-                    className="w-[150px]"
-                />
-                <Table.Column
-                    title={"Ações"}
-                    className="w-[100px]"
-                    render={(_, row) => (
-                        <div className="flex gap-3">
-                            <Button
-                                type="primary"
-                                icon={<BiPencil />}
-                                onClick={() => {
-                                    delete row.senha;
-                                    formEdit.setFieldsValue({ ...row })
-                                    setVisibleUpdate(true);
-                                }}
-                            />
-                            <Popconfirm
-                                title="Alerta"
-                                description="Deseja realmente apagar?"
-                                onConfirm={() => deletar(row.usuario_id)}
-                                okText="Sim"
-                                cancelText="Não"
-                            >
+            <div className="lg:hidden">
+                <Table
+                    dataSource={usuarios || []}
+                    rowKey={"usuario_id"}
+                    className="shadow-lg bg-white rounded-2xl"
+
+                >
+                    <Table.Column
+                        title={"Usuário"}
+                        render={(_, row) => (
+                            <div>
+                                <div className="flex *:flex-1">
+                                    <div>
+                                        <span className="font-bold block text-slate-500">Nome:</span>
+                                        <span className="line-clamp-1">{row.nome}</span>
+                                    </div>
+                                    <div>
+                                        <span className="font-bold block text-slate-500">Email:</span>
+                                        <span className="line-clamp-1">{row.email}</span>
+                                    </div>
+                                </div>
+                                <div className="flex *:flex-1">
+                                    <div>
+                                        <span className="font-bold block text-slate-500">Departamento:</span>
+                                        {row.departamentos.nome}
+                                    </div>
+                                    <div>
+                                        <span className="font-bold block text-slate-500">Status:</span>
+                                        {row.status == 1 ? "Ativo" : "Inativo"}
+                                    </div>
+                                </div>
+                                <div className="flex justify-end gap-3">
+                                    <Button
+                                    type="primary"
+                                    icon={<BiPencil />}
+                                    onClick={() => {
+                                        delete row.senha;
+                                        formEdit.setFieldsValue({ ...row })
+                                        setVisibleUpdate(true);
+                                    }}
+                                />
+                                <Popconfirm
+                                    title="Alerta"
+                                    description="Deseja realmente apagar?"
+                                    onConfirm={() => deletar(row.usuario_id)}
+                                    okText="Sim"
+                                    cancelText="Não"
+                                >
+                                    <Button
+                                        type="primary"
+                                        icon={<BiTrash />}
+                                    />
+                                </Popconfirm>
+                                </div>
+                            </div>
+                        )}
+                        dataIndex={"nome"}
+                        key={"nome"}
+                    />
+                </Table>
+            </div>
+            <div className="hidden lg:block">
+                <Table
+                    dataSource={usuarios || []}
+                    rowKey={"usuario_id"}
+                    className="shadow-lg bg-white rounded-2xl"
+
+                >
+                    <Table.Column
+                        title={"ID"}
+                        dataIndex={"usuario_id"}
+                        key={"usuario_id"}
+                        className="w-[50px]"
+                    />
+                    <Table.Column
+                        title={"Nome"}
+                        dataIndex={"nome"}
+                        key={"nome"}
+                    />
+                    <Table.Column
+                        title={"Email"}
+                        dataIndex={"email"}
+                        key={"email"}
+                    />
+                    <Table.Column
+                        title={"Departamento"}
+                        render={(_, row) => row.departamentos.nome}
+                        className="w-[150px]"
+                    />
+                    <Table.Column
+                        title={"Ações"}
+                        className="w-[100px]"
+                        render={(_, row) => (
+                            <div className="flex gap-3">
                                 <Button
                                     type="primary"
-                                    icon={<BiTrash />}
+                                    icon={<BiPencil />}
+                                    onClick={() => {
+                                        delete row.senha;
+                                        formEdit.setFieldsValue({ ...row })
+                                        setVisibleUpdate(true);
+                                    }}
                                 />
-                            </Popconfirm>
-                        </div>
-                    )}
-                />
-            </Table>
+                                <Popconfirm
+                                    title="Alerta"
+                                    description="Deseja realmente apagar?"
+                                    onConfirm={() => deletar(row.usuario_id)}
+                                    okText="Sim"
+                                    cancelText="Não"
+                                >
+                                    <Button
+                                        type="primary"
+                                        icon={<BiTrash />}
+                                    />
+                                </Popconfirm>
+                            </div>
+                        )}
+                    />
+                </Table>
+            </div>
             <Drawer
                 open={visibleCreate}
                 onClose={() => setVisibleCreate(false)}

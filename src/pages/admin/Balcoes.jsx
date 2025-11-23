@@ -1,13 +1,17 @@
-import { Button, Drawer, Form, Input, Popconfirm, Select, Table } from "antd";
+import { Button, Drawer, Form, Input, Modal, Popconfirm, Select, Table } from "antd";
 import { useCreateBalcoes, useUpdateBalcoes, useDeleteBalcoes, useGetBalcoes } from "../../hooks/balcaoHooks";
-import { BiPencil, BiPlus, BiTrash } from "react-icons/bi";
+import { BiPencil, BiPlus, BiScan, BiTrash } from "react-icons/bi";
 import { useContext, useState } from "react";
 import { AntContext } from "../../contexts/AntContext";
+import Recognize from "../Recognize";
 
 const Balcoes = () => {
 
     const [visibleCreate, setVisibleCreate] = useState();
     const [visibleUpdate, setVisibleUpdate] = useState();
+    const [visibleModal, setVisibleModal] = useState();
+    const [balcaoID, setBalcaoID] = useState(0);
+
     const [formEdit] = Form.useForm();
     const { data: balcoes } = useGetBalcoes();
     const { mutateAsync: createDepartamento } = useCreateBalcoes();
@@ -15,7 +19,7 @@ const Balcoes = () => {
     const { mutateAsync: deleteDepartamento } = useDeleteBalcoes();
     const { api } = useContext(AntContext);
 
-    function criar(data){
+    function criar(data) {
         createDepartamento(data, {
             onSuccess: (response) => {
                 api[response.type]({
@@ -29,8 +33,8 @@ const Balcoes = () => {
             }
         }).finally(() => setVisibleCreate(false))
     }
-    
-    function editar(data){
+
+    function editar(data) {
         updateDepartamento(data, {
             onSuccess: (response) => {
                 api[response.type]({
@@ -62,7 +66,7 @@ const Balcoes = () => {
 
     return (
         <>
-            <div className="flex justify-between items-center mb-5">
+            <div className="flex flex-col lg:flex-row gap-2 justify-between lg:items-center mb-5">
                 <h1 className="text-2xl text-blue-500 font-semibold">Balcões</h1>
                 <Button
                     type="primary"
@@ -72,54 +76,116 @@ const Balcoes = () => {
                     Novo Balcão
                 </Button>
             </div>
-            <Table
-                dataSource={balcoes || []}
-                rowKey={"balcao_id"}
-            >
-                <Table.Column
-                    title={"ID"}
-                    dataIndex={"balcao_id"}
-                    key={"balcao_id"}
-                    className="w-[50px]"
-                />
-                <Table.Column
-                    title={"Localização"}
-                    dataIndex={"localizacao"}
-                    key={"localizacao"}
-                />
-                <Table.Column
-                    title={"Status"}
-                    render={(_, row) => row.status == 1 ? "Ativo" : "Inativo"}
-                />
-                <Table.Column
-                    title={"Ações"}
-                    className="w-[100px]"
-                    render={(_, row) => (
-                        <div className="flex gap-3">
-                            <Button
-                                type="primary"
-                                icon={<BiPencil />}
-                                onClick={() => {
-                                    formEdit.setFieldsValue({ ...row })
-                                    setVisibleUpdate(true);
-                                }}
-                            />
-                            <Popconfirm
-                                title="Alerta"
-                                description="Deseja realmente apagar?"
-                                onConfirm={() => deletar(row.balcao_id)}
-                                okText="Sim"
-                                cancelText="Não"
-                            >
+            <div className="lg:hidden">
+                <Table
+                    dataSource={balcoes || []}
+                    rowKey={"balcao_id"}
+                    className="shadow-lg bg-white rounded-2xl"
+
+                >
+                    <Table.Column
+                        title={"Balcão"}
+                        render={(_, row) => (
+                            <div>
+                                <div className="flex *:flex-1">
+                                    <div>
+                                        <span className="font-bold block text-slate-500">Localização:</span>
+                                        <span className="line-clamp-1">{row.localizacao}</span>
+                                    </div>
+                                    <div>
+                                        <span className="font-bold block text-slate-500">Status:</span>
+                                        {row.status == 1 ? "Ativo" : "Inativo"}
+                                    </div>
+                                </div>
+                                <div className="flex justify-end gap-3">
+                                    <Button
+                                        type="primary"
+                                        icon={<BiPencil />}
+                                        onClick={() => {
+                                            delete row.senha;
+                                            formEdit.setFieldsValue({ ...row })
+                                            setVisibleUpdate(true);
+                                        }}
+                                    />
+                                    <Popconfirm
+                                        title="Alerta"
+                                        description="Deseja realmente apagar?"
+                                        onConfirm={() => deletar(row.balcao_id)}
+                                        okText="Sim"
+                                        cancelText="Não"
+                                    >
+                                        <Button
+                                            type="primary"
+                                            icon={<BiTrash />}
+                                        />
+                                    </Popconfirm>
+                                </div>
+                            </div>
+                        )}
+                        dataIndex={"nome"}
+                        key={"nome"}
+                    />
+                </Table>
+            </div>
+            <div className="hidden lg:block">
+                <Table
+                    dataSource={balcoes || []}
+                    rowKey={"balcao_id"}
+                    className="shadow-lg bg-white rounded-2xl"
+                >
+                    <Table.Column
+                        title={"ID"}
+                        dataIndex={"balcao_id"}
+                        key={"balcao_id"}
+                        className="w-[50px]"
+                    />
+                    <Table.Column
+                        title={"Localização"}
+                        dataIndex={"localizacao"}
+                        key={"localizacao"}
+                    />
+                    <Table.Column
+                        title={"Status"}
+                        render={(_, row) => row.status == 1 ? "Ativo" : "Inativo"}
+                    />
+                    <Table.Column
+                        title={"Ações"}
+                        className="w-[100px]"
+                        render={(_, row) => (
+                            <div className="flex gap-3">
                                 <Button
                                     type="primary"
-                                    icon={<BiTrash />}
+                                    icon={<BiScan />}
+                                    onClick={() => {
+                                        setBalcaoID(row.balcao_id);
+                                        setVisibleModal(true);
+                                    }}
                                 />
-                            </Popconfirm>
-                        </div>
-                    )}
-                />
-            </Table>
+                                <Button
+                                    type="primary"
+                                    icon={<BiPencil />}
+                                    onClick={() => {
+                                        formEdit.setFieldsValue({ ...row })
+                                        setVisibleUpdate(true);
+                                    }}
+                                />
+                                <Popconfirm
+                                    title="Alerta"
+                                    description="Deseja realmente apagar?"
+                                    onConfirm={() => deletar(row.balcao_id)}
+                                    okText="Sim"
+                                    cancelText="Não"
+                                >
+                                    <Button
+                                        type="primary"
+                                        icon={<BiTrash />}
+                                    />
+                                </Popconfirm>
+                            </div>
+                        )}
+                    />
+                </Table>
+            </div>
             <Drawer
                 open={visibleCreate}
                 onClose={() => setVisibleCreate(false)}
@@ -217,6 +283,15 @@ const Balcoes = () => {
                     </div>
                 </Form>
             </Drawer>
+            <Modal
+                title="Reconhecimento"
+                open={visibleModal}
+                onOk={() => setVisibleModal(false)}
+                onCancel={() => setVisibleModal(false)}
+                width={800}
+            >
+                <Recognize balcaoId={balcaoID} />
+            </Modal>
         </>
     );
 }
