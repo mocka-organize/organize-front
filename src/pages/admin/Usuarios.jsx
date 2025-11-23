@@ -1,22 +1,25 @@
-import { Button, Drawer, Form, Image, Input, Popconfirm, Table } from "antd";
-import { useCreateClientes, useDeleteClientes, useGetClientes, useUpdateClientes } from "../../hooks/clientesHooks";
+import { Button, Drawer, Form, Image, Input, Popconfirm, Select, Table } from "antd";
+import { useCreateUsuarios, useDeleteUsuarios, useGetUsuarios } from "../../hooks/usuarioHooks";
 import { BiPencil, BiPlus, BiTrash } from "react-icons/bi";
 import { useContext, useState } from "react";
 import { AntContext } from "../../contexts/AntContext";
+import { useUpdateUsuarios } from "../../hooks/usuarioHooks";
+import { useGetDepartamentos } from "../../hooks/departamentoHooks";
 
-const Clientes = () => {
+const Usuarios = () => {
 
     const [visibleCreate, setVisibleCreate] = useState();
     const [visibleUpdate, setVisibleUpdate] = useState();
     const [formEdit] = Form.useForm();
-    const { data: clientes } = useGetClientes();
-    const { mutateAsync: createCliente } = useCreateClientes();
-    const { mutateAsync: updateCliente } = useUpdateClientes();
-    const { mutateAsync: deleteCliente } = useDeleteClientes();
+    const { data: usuarios } = useGetUsuarios();
+    const { data: departamentos, isFetched: departamentosFetched } = useGetDepartamentos();
+    const { mutateAsync: createUsuario } = useCreateUsuarios();
+    const { mutateAsync: updateUsuario } = useUpdateUsuarios();
+    const { mutateAsync: deleteUsuario } = useDeleteUsuarios();
     const { api } = useContext(AntContext);
 
     function criar(data){
-        createCliente(data, {
+        createUsuario(data, {
             onSuccess: (response) => {
                 api[response.type]({
                     description: response.description
@@ -29,9 +32,9 @@ const Clientes = () => {
             }
         }).finally(() => setVisibleCreate(false))
     }
-    
+
     function editar(data){
-        updateCliente(data, {
+        updateUsuario(data, {
             onSuccess: (response) => {
                 api[response.type]({
                     description: response.description
@@ -46,7 +49,7 @@ const Clientes = () => {
     }
 
     function deletar(id) {
-        deleteCliente(id, {
+        deleteUsuario(id, {
             onSuccess: (response) => {
                 api[response.type]({
                     description: response.description
@@ -63,42 +66,39 @@ const Clientes = () => {
     return (
         <>
             <div className="flex justify-between items-center mb-5">
-                <h1 className="text-2xl text-blue-500 font-semibold">Clientes</h1>
+                <h1 className="text-2xl text-blue-500 font-semibold">Usuarios</h1>
                 <Button
                     type="primary"
                     icon={<BiPlus />}
                     onClick={() => setVisibleCreate(true)}
                 >
-                    Novo cliente
+                    Novo Usuario
                 </Button>
             </div>
             <Table
-                dataSource={clientes || []}
-                rowKey={"cliente_id"}
+                dataSource={usuarios || []}
+                rowKey={"usuario_id"}
             >
                 <Table.Column
-                    title={"Foto"}
-                    className="w-[40px]"
-                    render={(_, row) => (
-                        <div className="flex items-center">
-                            <Image
-                                src={row.foto}
-                                alt={row.nome}
-                                width={40}
-                                height={40}
-                                className="object-cover rounded"
-                            />
-                        </div>
-                    )}
+                    title={"ID"}
+                    dataIndex={"usuario_id"}
+                    key={"usuario_id"}
+                    className="w-[50px]"
                 />
                 <Table.Column
-                    title={"Dados"}
-                    render={(_, row) => (
-                        <div>
-                            <div className="leading-4"><strong>Nome: </strong>{row.nome}</div>
-                            <div className="leading-4"><strong>Email: </strong>{row.email}</div>
-                        </div>
-                    )}
+                    title={"Nome"}
+                    dataIndex={"nome"}
+                    key={"nome"}
+                />
+                <Table.Column
+                    title={"Email"}
+                    dataIndex={"email"}
+                    key={"email"}
+                />
+                <Table.Column
+                    title={"Departamento"}
+                    render={(_, row) => row.departamentos.nome}
+                    className="w-[150px]"
                 />
                 <Table.Column
                     title={"Ações"}
@@ -109,14 +109,15 @@ const Clientes = () => {
                                 type="primary"
                                 icon={<BiPencil />}
                                 onClick={() => {
+                                    delete row.senha;
                                     formEdit.setFieldsValue({ ...row })
-                                    setVisibleUpdate(true)
+                                    setVisibleUpdate(true);
                                 }}
                             />
                             <Popconfirm
                                 title="Alerta"
                                 description="Deseja realmente apagar?"
-                                onConfirm={() => deletar(row.cliente_id)}
+                                onConfirm={() => deletar(row.usuario_id)}
                                 okText="Sim"
                                 cancelText="Não"
                             >
@@ -136,8 +137,10 @@ const Clientes = () => {
             >
                 <Form
                     layout="vertical"
-                    encType="multipart/form-data"
                     onFinish={criar}
+                    defaultValue={{
+                        status: 1
+                    }}
                 >
                     <Form.Item
                         label="Nome"
@@ -154,19 +157,47 @@ const Clientes = () => {
                         <Input />
                     </Form.Item>
                     <Form.Item
-                        label="Foto"
-                        name={"foto"}
-                        valuePropName="fileList"
-                        getValueFromEvent={(e) => {
-                            if (Array.isArray(e)) {
-                                return e;
-                            }
-                            return e?.target?.files?.[0];
-                        }}
+                        label="Senha"
+                        name={"senha"}
                         rules={[{ required: true, message: "Campo obrigatório" }]}
                     >
-                        <Input type="file" />
+                        <Input />
                     </Form.Item>
+                    <Form.Item
+                        label="Departamento"
+                        name={"departamento_id"}
+                        rules={[{ required: true, message: "Campo obrigatório" }]}
+                    >
+                        <Select 
+                            options={departamentosFetched ? departamentos.map(departamento => {
+                                return {
+                                    value: departamento.departamento_id,
+                                    label: departamento.nome
+                                }
+                            }) : []}
+                            placeholder={"Escolha o departamento"}
+                        />
+                    </Form.Item>
+                    <Form.Item
+                        label="Status"
+                        name={"status"}
+                        rules={[{ required: true, message: "Campo obrigatório" }]}
+                    >
+                        <Select 
+                            options={[
+                                {
+                                    value: 1,
+                                    label: "Ativo"
+                                },
+                                {
+                                    value: 0,
+                                    label: "Inativo"
+                                }
+                            ]}
+                            placeholder={"Escolha o status"}
+                        />
+                    </Form.Item>
+                    
                     <div className="flex justify-end">
                         <Button
                             htmlType="submit"
@@ -184,12 +215,11 @@ const Clientes = () => {
             >
                 <Form
                     layout="vertical"
-                    encType="multipart/form-data"
                     onFinish={editar}
                     form={formEdit}
                 >
                     <Form.Item
-                        name={"cliente_id"}
+                        name={"usuario_id"}
                         hidden
                     >
                         <Input />
@@ -209,18 +239,46 @@ const Clientes = () => {
                         <Input />
                     </Form.Item>
                     <Form.Item
-                        label="Foto"
-                        name={"foto"}
-                        valuePropName="fileList"
-                        getValueFromEvent={(e) => {
-                            if (Array.isArray(e)) {
-                                return e;
-                            }
-                            return e?.target?.files?.[0];
-                        }}
+                        label="Senha"
+                        name={"senha"}
                     >
-                        <Input type="file" />
+                        <Input />
                     </Form.Item>
+                    <Form.Item
+                        label="Departamento"
+                        name={"departamento_id"}
+                        rules={[{ required: true, message: "Campo obrigatório" }]}
+                    >
+                        <Select 
+                            options={departamentosFetched ? departamentos.map(departamento => {
+                                return {
+                                    value: departamento.departamento_id,
+                                    label: departamento.nome
+                                }
+                            }) : []}
+                            placeholder={"Escolha o departamento"}
+                        />
+                    </Form.Item>
+                    <Form.Item
+                        label="Status"
+                        name={"status"}
+                        rules={[{ required: true, message: "Campo obrigatório" }]}
+                    >
+                        <Select 
+                            options={[
+                                {
+                                    value: 1,
+                                    label: "Ativo"
+                                },
+                                {
+                                    value: 0,
+                                    label: "Inativo"
+                                }
+                            ]}
+                            placeholder={"Escolha o status"}
+                        />
+                    </Form.Item>
+                    
                     <div className="flex justify-end">
                         <Button
                             htmlType="submit"
@@ -235,4 +293,4 @@ const Clientes = () => {
     );
 }
 
-export default Clientes;
+export default Usuarios;

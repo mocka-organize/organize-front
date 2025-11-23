@@ -11,11 +11,28 @@ export const useGetClientes = () => {
     })
 }
 
-
 export const useCreateClientes = () => {
     return useMutation({
         mutationFn: async (data) => {
             const request = await API.post(`/clientes/`, data, {
+                headers: {
+                    "Content-type": "multipart/form-data"
+                }
+            });
+            return request.data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({
+                queryKey: ["clientes"]
+            })
+        }
+    })
+}
+
+export const useUpdateClientes = () => {
+    return useMutation({
+        mutationFn: async (data) => {
+            const request = await API.put(`/clientes/${data.cliente_id}`, data, {
                 headers: {
                     "Content-type": "multipart/form-data"
                 }

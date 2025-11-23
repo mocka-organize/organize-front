@@ -1,22 +1,22 @@
-import { Button, Drawer, Form, Image, Input, Popconfirm, Table } from "antd";
-import { useCreateClientes, useDeleteClientes, useGetClientes, useUpdateClientes } from "../../hooks/clientesHooks";
+import { Button, Drawer, Form, Input, Popconfirm, Table } from "antd";
+import { useCreateDepartamentos, useUpdateDepartamentos, useDeleteDepartamentos, useGetDepartamentos } from "../../hooks/departamentoHooks";
 import { BiPencil, BiPlus, BiTrash } from "react-icons/bi";
 import { useContext, useState } from "react";
 import { AntContext } from "../../contexts/AntContext";
 
-const Clientes = () => {
+const Departamentos = () => {
 
     const [visibleCreate, setVisibleCreate] = useState();
     const [visibleUpdate, setVisibleUpdate] = useState();
     const [formEdit] = Form.useForm();
-    const { data: clientes } = useGetClientes();
-    const { mutateAsync: createCliente } = useCreateClientes();
-    const { mutateAsync: updateCliente } = useUpdateClientes();
-    const { mutateAsync: deleteCliente } = useDeleteClientes();
+    const { data: departamentos } = useGetDepartamentos();
+    const { mutateAsync: createDepartamento } = useCreateDepartamentos();
+    const { mutateAsync: updateDepartamento } = useUpdateDepartamentos();
+    const { mutateAsync: deleteDepartamento } = useDeleteDepartamentos();
     const { api } = useContext(AntContext);
 
     function criar(data){
-        createCliente(data, {
+        createDepartamento(data, {
             onSuccess: (response) => {
                 api[response.type]({
                     description: response.description
@@ -31,7 +31,7 @@ const Clientes = () => {
     }
     
     function editar(data){
-        updateCliente(data, {
+        updateDepartamento(data, {
             onSuccess: (response) => {
                 api[response.type]({
                     description: response.description
@@ -46,7 +46,7 @@ const Clientes = () => {
     }
 
     function deletar(id) {
-        deleteCliente(id, {
+        deleteDepartamento(id, {
             onSuccess: (response) => {
                 api[response.type]({
                     description: response.description
@@ -63,42 +63,29 @@ const Clientes = () => {
     return (
         <>
             <div className="flex justify-between items-center mb-5">
-                <h1 className="text-2xl text-blue-500 font-semibold">Clientes</h1>
+                <h1 className="text-2xl text-blue-500 font-semibold">Departamentos</h1>
                 <Button
                     type="primary"
                     icon={<BiPlus />}
                     onClick={() => setVisibleCreate(true)}
                 >
-                    Novo cliente
+                    Novo Departamento
                 </Button>
             </div>
             <Table
-                dataSource={clientes || []}
-                rowKey={"cliente_id"}
+                dataSource={departamentos || []}
+                rowKey={"departamento_id"}
             >
                 <Table.Column
-                    title={"Foto"}
-                    className="w-[40px]"
-                    render={(_, row) => (
-                        <div className="flex items-center">
-                            <Image
-                                src={row.foto}
-                                alt={row.nome}
-                                width={40}
-                                height={40}
-                                className="object-cover rounded"
-                            />
-                        </div>
-                    )}
+                    title={"ID"}
+                    dataIndex={"departamento_id"}
+                    key={"departamento_id"}
+                    className="w-[50px]"
                 />
                 <Table.Column
-                    title={"Dados"}
-                    render={(_, row) => (
-                        <div>
-                            <div className="leading-4"><strong>Nome: </strong>{row.nome}</div>
-                            <div className="leading-4"><strong>Email: </strong>{row.email}</div>
-                        </div>
-                    )}
+                    title={"Nome"}
+                    dataIndex={"nome"}
+                    key={"nome"}
                 />
                 <Table.Column
                     title={"Ações"}
@@ -110,13 +97,13 @@ const Clientes = () => {
                                 icon={<BiPencil />}
                                 onClick={() => {
                                     formEdit.setFieldsValue({ ...row })
-                                    setVisibleUpdate(true)
+                                    setVisibleUpdate(true);
                                 }}
                             />
                             <Popconfirm
                                 title="Alerta"
                                 description="Deseja realmente apagar?"
-                                onConfirm={() => deletar(row.cliente_id)}
+                                onConfirm={() => deletar(row.departamento_id)}
                                 okText="Sim"
                                 cancelText="Não"
                             >
@@ -136,7 +123,6 @@ const Clientes = () => {
             >
                 <Form
                     layout="vertical"
-                    encType="multipart/form-data"
                     onFinish={criar}
                 >
                     <Form.Item
@@ -145,27 +131,6 @@ const Clientes = () => {
                         rules={[{ required: true, message: "Campo obrigatório" }]}
                     >
                         <Input />
-                    </Form.Item>
-                    <Form.Item
-                        label="Email"
-                        name={"email"}
-                        rules={[{ required: true, message: "Campo obrigatório" }]}
-                    >
-                        <Input />
-                    </Form.Item>
-                    <Form.Item
-                        label="Foto"
-                        name={"foto"}
-                        valuePropName="fileList"
-                        getValueFromEvent={(e) => {
-                            if (Array.isArray(e)) {
-                                return e;
-                            }
-                            return e?.target?.files?.[0];
-                        }}
-                        rules={[{ required: true, message: "Campo obrigatório" }]}
-                    >
-                        <Input type="file" />
                     </Form.Item>
                     <div className="flex justify-end">
                         <Button
@@ -184,12 +149,11 @@ const Clientes = () => {
             >
                 <Form
                     layout="vertical"
-                    encType="multipart/form-data"
                     onFinish={editar}
                     form={formEdit}
                 >
                     <Form.Item
-                        name={"cliente_id"}
+                        name={"departamento_id"}
                         hidden
                     >
                         <Input />
@@ -200,26 +164,6 @@ const Clientes = () => {
                         rules={[{ required: true, message: "Campo obrigatório" }]}
                     >
                         <Input />
-                    </Form.Item>
-                    <Form.Item
-                        label="Email"
-                        name={"email"}
-                        rules={[{ required: true, message: "Campo obrigatório" }]}
-                    >
-                        <Input />
-                    </Form.Item>
-                    <Form.Item
-                        label="Foto"
-                        name={"foto"}
-                        valuePropName="fileList"
-                        getValueFromEvent={(e) => {
-                            if (Array.isArray(e)) {
-                                return e;
-                            }
-                            return e?.target?.files?.[0];
-                        }}
-                    >
-                        <Input type="file" />
                     </Form.Item>
                     <div className="flex justify-end">
                         <Button
@@ -235,4 +179,4 @@ const Clientes = () => {
     );
 }
 
-export default Clientes;
+export default Departamentos;

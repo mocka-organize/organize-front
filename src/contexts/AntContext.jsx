@@ -18,13 +18,13 @@ const AntProvider = ({ children }) => {
         <AntContext.Provider value={{ api, reconhecimentoAtivo, setReconhecimentoAtivo }}>
             {contextHolder}
             <ConfigProvider theme={{
-                token: {
-                    colorPrimary: '#615fff',
-                    colorLink: '#615fff'
-                },
+                // token: {
+                //     colorPrimary: '#615fff',
+                //     colorLink: '#615fff'
+                // },
                 components: {
                     Table: {
-                        headerColor: '#615fff',
+                        // headerColor: '#615fff',
                         headerBg: '#FFFFFF'
                     },
                 }
